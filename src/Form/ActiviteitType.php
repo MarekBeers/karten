@@ -24,13 +24,13 @@ class ActiviteitType extends AbstractType
             ->add('tijd', TimeType::class, ['attr' => ['class' => 'js-timepicker', 'placeholder'=>'hh:mm'],
                 'widget'=>'single_text','html5' => false,])
             ->add('soort', EntityType::class,
-                array('class' => 'AppBundle:Soortactiviteit',
+                array('class' => 'App:Soortactiviteiten',
                     'choice_label' => 'naam',));
     }
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => Activiteit::class,
+            'data_class' => Activiteiten::class,
         ));
 
     }

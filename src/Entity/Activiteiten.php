@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Activiteiten
  *
  * @ORM\Table(name="activiteiten")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\ActiviteitenRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ActiviteitenRepository")
  */
 class Activiteiten
 {
@@ -51,7 +51,7 @@ class Activiteiten
 
     /**
      * Many Activiteiten have Many Users.
-     * @ORM\ManyToMany(targetEntity="AppUsers", mappedBy="activiteiten")
+     * @ORM\ManyToMany(targetEntity="User", mappedBy="activiteiten")
      */
 
     private $users;

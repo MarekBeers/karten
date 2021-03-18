@@ -3,10 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Soortactiviteiten;
-use App\Entity\AppUsers;
+use App\Entity\User;
 use App\Form\ActiviteitType;
 use App\Form\UserType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class BezoekerController extends Controller
+class BezoekerController extends AbstractController
 {
     /**
      * @Route("/", name="homepage")
@@ -41,7 +41,7 @@ class BezoekerController extends Controller
     public function registreren(Request $request,UserPasswordEncoderInterface $passwordEncoder)
     {
         // 1) build the form
-        $user = new AppUsers();
+        $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->add('save', SubmitType::class, array('label'=>"registreren"));
         // 2) handle the submit (will only happen on POST)
@@ -50,7 +50,7 @@ class BezoekerController extends Controller
         if ($form->isSubmitted() && $form->isValid())
         {
             // 2.5) Is the user new, gebruikersnaam moet uniek zijn
-            $repository=$this->getDoctrine()->getRepository(AppUsers::class);
+            $repository=$this->getDoctrine()->getRepository(User::class);
             $bestaande_user=$repository->findOneBy(['username'=>$form->getData()->getUsername()]);
 
             if($bestaande_user==null)
@@ -88,33 +88,7 @@ class BezoekerController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/login", name="login")
-     */
-    public function loginAction(Request $request, AuthenticationUtils $authUtils)
-    {
-        // get the login error if there is one
-        $error = $authUtils->getLastAuthenticationError();
 
-        // last username entered by the user
-        $lastUsername = $authUtils->getLastUsername();
-        if (isset($error)) {
-            $this->addFlash(
-                'error',
-                'Gegevens kloppen niet. Probeer opnieuw.'
-            );
-        } else {
-
-            $this->addFlash(
-                'notice',
-                'Vul uw gegevens in'
-            );
-        }
-        return $this->render('bezoeker/login.html.twig', array(
-            'last_username' => $lastUsername,
-            'error'         => $error,
-        ));
-    }
 
     /**
      * @Route("nieuwSoortActiviteit", name="nieuwSoortActiviteit")

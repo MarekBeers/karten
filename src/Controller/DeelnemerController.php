@@ -3,10 +3,10 @@
 namespace App\Controller;
 
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
-class DeelnemerController extends Controller
+class DeelnemerController extends AbstractController
 {
     /**
      * @Route("/user/activiteiten", name="activiteiten")
@@ -16,15 +16,15 @@ class DeelnemerController extends Controller
         $usr= $this->get('security.token_storage')->getToken()->getUser();
 
         $beschikbareActiviteiten=$this->getDoctrine()
-            ->getRepository('AppBundle:Activiteit')
+            ->getRepository('App:Activiteiten')
             ->getBeschikbareActiviteiten($usr->getId());
 
         $ingeschrevenActiviteiten=$this->getDoctrine()
-            ->getRepository('AppBundle:Activiteit')
+            ->getRepository('App:Activiteiten')
             ->getIngeschrevenActiviteiten($usr->getId());
 
         $totaal=$this->getDoctrine()
-            ->getRepository('AppBundle:Activiteit')
+            ->getRepository('App:Activiteiten')
             ->getTotaal($ingeschrevenActiviteiten);
 
 
@@ -42,7 +42,7 @@ class DeelnemerController extends Controller
     {
 
         $activiteit = $this->getDoctrine()
-            ->getRepository('AppBundle:Activiteit')
+            ->getRepository('App:Activiteiten')
             ->find($id);
         $usr= $this->get('security.token_storage')->getToken()->getUser();
         $usr->addActiviteit($activiteit);
@@ -60,7 +60,7 @@ class DeelnemerController extends Controller
     public function uitschrijvenActiviteitAction($id)
     {
         $activiteit = $this->getDoctrine()
-            ->getRepository('AppBundle:Activiteit')
+            ->getRepository('App:Activiteiten')
             ->find($id);
         $usr= $this->get('security.token_storage')->getToken()->getUser();
         $usr->removeActiviteit($activiteit);
