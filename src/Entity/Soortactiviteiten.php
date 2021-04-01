@@ -3,12 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\ClassMetadata;
+
 
 /**
- * soortactiviteiten
+ * Soortactiviteiten
  *
- * @ORM\Table(name="soortactiviteiten")
+ * @ORM\Table(name="Soortactiviteiten")
  * @ORM\Entity(repositoryClass="App\Repository\SoortactiviteitRepository")
  */
 class Soortactiviteiten
@@ -51,14 +54,14 @@ class Soortactiviteiten
     private $prijs;
 
     /**
-     * @ORM\OneToMany(targetEntity="Activiteiten", mappedBy="soort")
+     * @ORM\OneToMany(targetEntity="Activiteiten", mappedBy="Soortactiviteiten")
      */
 
     private $activiteiten;
 
     public function __construct()
     {
-        $this->activiteiten=new ArrayCollection();
+        $this->activiteiten = new ArrayCollection();
     }
 
     /**
@@ -76,7 +79,7 @@ class Soortactiviteiten
      *
      * @param string $naam
      *
-     * @return soortactiviteiten
+     * @return Soortactiviteiten
      */
     public function setNaam($naam)
     {
@@ -100,7 +103,7 @@ class Soortactiviteiten
      *
      * @param integer $minLeeftijd
      *
-     * @return soortactiviteiten
+     * @return Soortactiviteiten
      */
     public function setMinLeeftijd($minLeeftijd)
     {
@@ -124,7 +127,7 @@ class Soortactiviteiten
      *
      * @param integer $tijdsduur
      *
-     * @return soortactiviteiten
+     * @return Soortactiviteiten
      */
     public function setTijdsduur($tijdsduur)
     {
@@ -148,7 +151,7 @@ class Soortactiviteiten
      *
      * @param string $prijs
      *
-     * @return soortactiviteiten
+     * @return Soortactiviteiten
      */
     public function setPrijs($prijs)
     {

@@ -4,8 +4,11 @@ namespace App\Controller;
 
 
 use App\Entity\Activiteiten;
+use App\Entity\Soortactiviteiten;
 use App\Form\ActiviteitType;
+use App\Form\SoortactiviteitenType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\ResetType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -153,5 +156,99 @@ class MedewerkerController extends AbstractController
         );
         return $this->redirectToRoute('beheer');
 
+    }
+
+    /**
+     * @Route("/admin/soort", name="soortactiviteiten_index", methods={"GET"})
+     */
+    public function index(): Response
+    {
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+        $soortactiviteitRepository=$this->getDoctrine()->getRepository(Soortactiviteiten::class);
+        return $this->render('soortactiviteiten/index.html.twig', [
+            'soortactiviteitens' => $soortactiviteitRepository->findAll(),
+            'activiteiten' => $activiteiten,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/soort/new", name="soortactiviteiten_new", methods={"GET","POST"})
+     */
+    public function new(Request $request): Response
+    {
+        $soortactiviteiten = new Soortactiviteiten();
+        $form = $this->createForm(SoortactiviteitenType::class, $soortactiviteiten);
+        $form->handleRequest($request);
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($soortactiviteiten);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('soortactiviteiten_index');
+        }
+
+        return $this->render('soortactiviteiten/new.html.twig', [
+            'soortactiviteiten' => $soortactiviteiten,
+            'activiteiten' => $activiteiten,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/soort/{id}", name="soortactiviteiten_show", methods={"GET"})
+     */
+    public function show(Soortactiviteiten $soortactiviteiten): Response
+    {
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+        return $this->render('soortactiviteiten/show.html.twig', [
+            'soortactiviteiten' => $soortactiviteiten,
+            'activiteiten' => $activiteiten,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/soort/{id}/edit", name="soortactiviteiten_edit", methods={"GET","POST"})
+     */
+    public function edit(Request $request, Soortactiviteiten $soortactiviteiten): Response
+    {
+        $form = $this->createForm(SoortactiviteitenType::class, $soortactiviteiten);
+        $form->handleRequest($request);
+
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirectToRoute('soortactiviteiten_index');
+        }
+
+        return $this->render('soortactiviteiten/edit.html.twig', [
+            'soortactiviteiten' => $soortactiviteiten,
+            'activiteiten' => $activiteiten,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/soort/{id}", name="soortactiviteiten_delete", methods={"DELETE"})
+     */
+    public function delete(Request $request, Soortactiviteiten $soortactiviteiten): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$soortactiviteiten->getId(), $request->request->get('_token'))) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($soortactiviteiten);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('soortactiviteiten_index');
     }
 }
