@@ -5,14 +5,18 @@ namespace App\Controller;
 
 use App\Entity\Activiteiten;
 use App\Entity\Soortactiviteiten;
+use App\Entity\User;
 use App\Form\ActiviteitType;
 use App\Form\SoortactiviteitenType;
+use App\Form\UserAdminControlType;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\ResetType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class MedewerkerController extends AbstractController
 {
@@ -250,5 +254,134 @@ class MedewerkerController extends AbstractController
         }
 
         return $this->redirectToRoute('soortactiviteiten_index');
+    }
+
+    /**
+     * @Route("/admin/users", name="user_index", methods={"GET"})
+     */
+    public function indexUser(UserRepository $userRepository): Response
+    {
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+        return $this->render('user/index.html.twig', [
+            'users' => $userRepository->findAll(),
+            'activiteiten' => $activiteiten,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/users/new", name="user_new", methods={"GET","POST"})
+     */
+    public function newUser(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
+    {
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+
+        $user = new User();
+        $form = $this->createForm(UserAdminControlType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+//            $entityManager = $this->getDoctrine()->getManager();
+//            $entityManager->persist($user);
+//            $entityManager->flush();
+//
+//            return $this->redirectToRoute('user_index');
+
+
+            $repository=$this->getDoctrine()->getRepository(User::class);
+            $bestaande_user=$repository->findOneBy(['username'=>$form->getData()->getUsername()]);
+
+            if($bestaande_user==null)
+            {
+                // 3) Encode the password (you could also do this via Doctrine listener)
+                $password = $passwordEncoder->encodePassword($user, $user->getPlainPassword());
+                $user->setPassword($password);
+                $user->setRoles($form->getData()->getRoles());
+                // 4) save the User!
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->flush();
+
+                $this->addFlash(
+                    'notice',
+                    $user->getNaam().' is geregistreerd!'
+                );
+
+                return $this->redirectToRoute('user_index');
+            }
+            else
+            {
+                $this->addFlash(
+                    'error',
+                    $user->getUsername()." bestaat al!"
+                );
+                return $this->render('bezoeker/registreren.html.twig', [
+                    'form'=>$form->createView(),
+                    'activiteiten' => $activiteiten,
+                ]);
+            }
+
+        }
+
+        return $this->render('user/new.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'activiteiten' => $activiteiten,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/users/{id}", name="user_show", methods={"GET"})
+     */
+    public function showUser(User $user): Response
+    {
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+        return $this->render('user/show.html.twig', [
+            'user' => $user,
+            'activiteiten' => $activiteiten,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/users/{id}/edit", name="user_edit", methods={"GET","POST"})
+     */
+    public function editUser(Request $request, User $user): Response
+    {
+        $activiteiten=$this->getDoctrine()
+            ->getRepository('App:Activiteiten')
+            ->findAll();
+        $form = $this->createForm(UserAdminControlType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirectToRoute('user_index');
+        }
+
+        return $this->render('user/edit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'activiteiten' => $activiteiten,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/users/{id}", name="user_delete", methods={"DELETE"})
+     */
+    public function deleteUser(Request $request, User $user): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($user);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('user_index');
     }
 }

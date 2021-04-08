@@ -3,7 +3,12 @@
 namespace App\Controller;
 
 
+use App\Entity\User;
+use App\Form\UserAdminControlType;
+use App\Form\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DeelnemerController extends AbstractController
@@ -68,6 +73,27 @@ class DeelnemerController extends AbstractController
         $em->persist($usr);
         $em->flush();
         return $this->redirectToRoute('activiteiten');
+    }
+
+    /**
+     * @Route("/user/{id}/edit", name="user_bezoeker_edit", methods={"GET","POST"})
+     */
+    public function editUser(Request $request, User $user): Response
+    {
+
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirectToRoute('user_bezoeker_edit');
+        }
+
+        return $this->render('user/edit_bezoeker.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
     }
 
 }

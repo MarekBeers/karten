@@ -56,6 +56,11 @@ class Activiteiten
 
     private $users;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $max_users;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -133,6 +138,18 @@ class Activiteiten
     public function setSoort($soort)
     {
         $this->soort=$soort;
+    }
+
+    public function getMaxUsers(): ?int
+    {
+        return $this->max_users;
+    }
+
+    public function setMaxUsers(int $max_users): self
+    {
+        $this->max_users = $max_users;
+
+        return $this;
     }
 }
 
